@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 const VOTE_ORDER = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
 
@@ -46,86 +46,78 @@ const VOTING_COUNTRIES = [
 
 type Country = { id: string; name: string; flag: string; points: number };
 
-// Stores previous DOM positions for FLIP animation
-type Positions = Record<string, DOMRect>;
+type FlyState = {
+  id: string;
+  flag: string;
+  name: string;
+  currentPoints: number;
+  addedScore: number;
+  fromY: number;
+  fromX: number;
+  toY: number;
+  toX: number;
+  width: number;
+} | null;
 
 export default function Index() {
   const [countries, setCountries] = useState<Country[]>(INITIAL_COUNTRIES);
   const [voterIdx, setVoterIdx] = useState(0);
   const [voteStep, setVoteStep] = useState(0);
-  const [flyingId, setFlyingId] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [flyState, setFlyState] = useState<FlyState>(null);
+  const [flyPhase, setFlyPhase] = useState<"idle" | "flying" | "landing">("idle");
 
   const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const prevPositions = useRef<Positions>({});
-  const pendingFlip = useRef<{ movedId: string } | null>(null);
+  const boardRef = useRef<HTMLDivElement | null>(null);
 
   const currentVoter = VOTING_COUNTRIES[voterIdx % VOTING_COUNTRIES.length];
   const currentScore = VOTE_ORDER[voteStep];
 
-  // After state update, run FLIP for all rows
-  useLayoutEffect(() => {
-    if (!pendingFlip.current) return;
-    const { movedId } = pendingFlip.current;
-    pendingFlip.current = null;
-
-    const prev = prevPositions.current;
-
-    // For each row, compute delta and animate
-    Object.entries(rowRefs.current).forEach(([id, el]) => {
-      if (!el || !prev[id]) return;
-      const next = el.getBoundingClientRect();
-      const deltaY = prev[id].top - next.top;
-      if (Math.abs(deltaY) < 1) return;
-
-      const isMover = id === movedId;
-      const duration = isMover ? 700 : 400;
-      const easing = isMover ? "cubic-bezier(0.34,1.56,0.64,1)" : "ease";
-
-      el.style.transition = "none";
-      el.style.transform = `translateY(${deltaY}px)`;
-      el.style.zIndex = isMover ? "100" : "1";
-      el.style.boxShadow = isMover
-        ? "0 12px 40px rgba(212,168,32,0.9), 0 0 30px rgba(255,215,0,0.6)"
-        : "";
-
-      requestAnimationFrame(() => {
-        el.style.transition = `transform ${duration}ms ${easing}, box-shadow ${duration}ms ease`;
-        el.style.transform = "translateY(0)";
-        el.style.boxShadow = "";
-
-        setTimeout(() => {
-          el.style.zIndex = "";
-          el.style.transition = "";
-          if (id === movedId) setFlyingId(null);
-        }, duration);
-      });
-    });
-  });
+  const setRef = (id: string) => (el: HTMLDivElement | null) => {
+    rowRefs.current[id] = el;
+  };
 
   const handleCountryClick = useCallback(
-    (id: string) => {
+    (clickedId: string) => {
       if (isAnimating) return;
-      setIsAnimating(true);
 
-      // Snapshot current positions
-      const snap: Positions = {};
-      Object.entries(rowRefs.current).forEach(([cid, el]) => {
-        if (el) snap[cid] = el.getBoundingClientRect();
-      });
-      prevPositions.current = snap;
+      const clickedCountry = countries.find((c) => c.id === clickedId);
+      if (!clickedCountry) return;
 
-      setFlyingId(id);
+      const fromEl = rowRefs.current[clickedId];
+      if (!fromEl) return;
 
       const score = currentScore;
-      pendingFlip.current = { movedId: id };
 
-      setCountries((prev) => {
-        const updated = prev.map((c) =>
-          c.id === id ? { ...c, points: c.points + score } : c
-        );
-        return [...updated].sort((a, b) => b.points - a.points);
+      // Compute new sorted list to find destination position
+      const updatedList = countries
+        .map((c) => (c.id === clickedId ? { ...c, points: c.points + score } : c))
+        .sort((a, b) => b.points - a.points);
+
+      const newIdx = updatedList.findIndex((c) => c.id === clickedId);
+      const isLeftCol = newIdx < 13;
+
+      const fromRect = fromEl.getBoundingClientRect();
+
+      setIsAnimating(true);
+
+      // Set fly state with FROM position, TO will be computed after state update
+      setFlyState({
+        id: clickedId,
+        flag: clickedCountry.flag,
+        name: clickedCountry.name,
+        currentPoints: clickedCountry.points,
+        addedScore: score,
+        fromY: fromRect.top,
+        fromX: fromRect.left,
+        toY: fromRect.top, // placeholder, updated after render
+        toX: fromRect.left,
+        width: fromRect.width,
       });
+      setFlyPhase("flying");
+
+      // Update countries state
+      setCountries(updatedList);
 
       if (voteStep < VOTE_ORDER.length - 1) {
         setVoteStep((s) => s + 1);
@@ -133,17 +125,52 @@ export default function Index() {
         setVoteStep(0);
         setVoterIdx((v) => v + 1);
       }
-
-      setTimeout(() => setIsAnimating(false), 750);
     },
-    [currentScore, voteStep, isAnimating]
+    [countries, currentScore, voteStep, isAnimating]
   );
+
+  // After countries update, measure target position and trigger flight
+  useEffect(() => {
+    if (flyPhase !== "flying" || !flyState) return;
+
+    // Small delay to let DOM rerender
+    const timer = setTimeout(() => {
+      const targetEl = rowRefs.current[flyState.id];
+      if (!targetEl) {
+        finishAnimation();
+        return;
+      }
+      const toRect = targetEl.getBoundingClientRect();
+
+      setFlyState((prev) =>
+        prev
+          ? {
+              ...prev,
+              toY: toRect.top,
+              toX: toRect.left,
+              width: toRect.width,
+            }
+          : null
+      );
+      setFlyPhase("landing");
+    }, 30);
+
+    return () => clearTimeout(timer);
+  }, [flyPhase, flyState?.id]);
+
+  // After landing phase animation ends
+  const finishAnimation = useCallback(() => {
+    setFlyState(null);
+    setFlyPhase("idle");
+    setIsAnimating(false);
+  }, []);
 
   const handleReset = () => {
     setCountries(INITIAL_COUNTRIES);
     setVoterIdx(0);
     setVoteStep(0);
-    setFlyingId(null);
+    setFlyState(null);
+    setFlyPhase("idle");
     setIsAnimating(false);
   };
 
@@ -151,12 +178,32 @@ export default function Index() {
   const leftCol = sorted.slice(0, 13);
   const rightCol = sorted.slice(13);
 
-  const setRef = (id: string) => (el: HTMLDivElement | null) => {
-    rowRefs.current[id] = el;
-  };
+  // Compute flying row style
+  const flyStyle: React.CSSProperties = (() => {
+    if (!flyState) return { display: "none" };
+
+    const isLanding = flyPhase === "landing";
+    const y = isLanding ? flyState.toY : flyState.fromY;
+    const x = isLanding ? flyState.toX : flyState.fromX;
+
+    return {
+      position: "fixed",
+      top: flyState.fromY,
+      left: flyState.fromX,
+      width: flyState.width,
+      zIndex: 9999,
+      transform: isLanding
+        ? `translate(${flyState.toX - flyState.fromX}px, ${flyState.toY - flyState.fromY}px)`
+        : "translate(0, 0)",
+      transition: isLanding
+        ? "transform 650ms cubic-bezier(0.25, 0.46, 0.45, 0.94)"
+        : "none",
+      pointerEvents: "none",
+    };
+  })();
 
   return (
-    <div className="esc-root">
+    <div className="esc-root" ref={boardRef}>
       <div className="esc-bg-glow" />
 
       {/* Header */}
@@ -200,7 +247,7 @@ export default function Index() {
             <div
               key={country.id}
               ref={setRef(country.id)}
-              className={`esc-row ${flyingId === country.id ? "flying" : ""} ${isAnimating ? "" : "clickable"}`}
+              className={`esc-row ${flyState?.id === country.id ? "esc-row--ghost" : ""} ${!isAnimating ? "clickable" : ""}`}
               onClick={() => handleCountryClick(country.id)}
             >
               <div className="esc-pos">{idx + 1}</div>
@@ -217,7 +264,7 @@ export default function Index() {
             <div
               key={country.id}
               ref={setRef(country.id)}
-              className={`esc-row ${flyingId === country.id ? "flying" : ""} ${isAnimating ? "" : "clickable"}`}
+              className={`esc-row ${flyState?.id === country.id ? "esc-row--ghost" : ""} ${!isAnimating ? "clickable" : ""}`}
               onClick={() => handleCountryClick(country.id)}
             >
               <div className="esc-flag">{country.flag}</div>
@@ -234,6 +281,20 @@ export default function Index() {
           ↺ RESET SCORES
         </button>
       </div>
+
+      {/* Flying row — absolute clone that travels across the screen */}
+      {flyState && (
+        <div
+          style={flyStyle}
+          onTransitionEnd={finishAnimation}
+          className="esc-row esc-row--flying"
+        >
+          <div className="esc-flag">{flyState.flag}</div>
+          <div className="esc-name">{flyState.name}</div>
+          <div className="esc-pts">{flyState.currentPoints + flyState.addedScore}</div>
+          <div className="esc-score-bubble">+{flyState.addedScore}</div>
+        </div>
+      )}
     </div>
   );
 }

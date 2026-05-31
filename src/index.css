@@ -370,11 +370,51 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
-/* Flying row — golden glow while airborne */
-.esc-row.flying {
-  background: linear-gradient(90deg, #ffd700 0%, #fff176 40%, #ffd700 100%);
-  border-color: var(--esc-gold-light);
-  z-index: 100;
+/* Ghost row — placeholder while original flies */
+.esc-row--ghost {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* Flying clone — travels across the screen */
+.esc-row--flying {
+  background: linear-gradient(
+    90deg,
+    #ffe44a 0%,
+    #fff9a0 35%,
+    #ffd700 70%,
+    #ffe44a 100%
+  ) !important;
+  border: 2px solid var(--esc-gold-light) !important;
+  box-shadow:
+    0 8px 32px rgba(212, 168, 32, 0.85),
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+  overflow: visible !important;
+}
+
+/* Score bubble on flying row */
+.esc-score-bubble {
+  position: absolute;
+  right: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2e8b57 0%, #0f4a29 100%);
+  border: 2px solid var(--esc-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--esc-gold-light);
+  box-shadow:
+    0 0 12px rgba(212, 168, 32, 0.6),
+    0 2px 6px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* Position number */
