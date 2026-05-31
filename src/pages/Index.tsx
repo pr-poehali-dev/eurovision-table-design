@@ -6,33 +6,35 @@ const VOTE_ORDER = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
 const FLAG_URL = (code: string) =>
   `https://flagcdn.com/28x21/${code}.png`;
 
+type ScoreBadge = { score: number; voterCode: string };
+
 const INITIAL_COUNTRIES = [
-  { id: "norway",      name: "NORWAY",           code: "no", points: 0, lastScore: null as number | null },
-  { id: "belgium",     name: "BELGIUM",           code: "be", points: 0, lastScore: null as number | null },
-  { id: "turkey",      name: "TURKEY",            code: "tr", points: 0, lastScore: null as number | null },
-  { id: "germany",     name: "GERMANY",           code: "de", points: 0, lastScore: null as number | null },
-  { id: "russia",      name: "RUSSIA",            code: "ru", points: 0, lastScore: null as number | null },
-  { id: "croatia",     name: "CROATIA",           code: "hr", points: 0, lastScore: null as number | null },
-  { id: "austria",     name: "AUSTRIA",           code: "at", points: 0, lastScore: null as number | null },
-  { id: "poland",      name: "POLAND",            code: "pl", points: 0, lastScore: null as number | null },
-  { id: "estonia",     name: "ESTONIA",           code: "ee", points: 0, lastScore: null as number | null },
-  { id: "sweden",      name: "SWEDEN",            code: "se", points: 0, lastScore: null as number | null },
-  { id: "iceland",     name: "ICELAND",           code: "is", points: 0, lastScore: null as number | null },
-  { id: "bosnia",      name: "BOSNIA & HERZ.",    code: "ba", points: 0, lastScore: null as number | null },
-  { id: "spain",       name: "SPAIN",             code: "es", points: 0, lastScore: null as number | null },
-  { id: "romania",     name: "ROMANIA",           code: "ro", points: 0, lastScore: null as number | null },
-  { id: "netherlands", name: "NETHERLANDS",       code: "nl", points: 0, lastScore: null as number | null },
-  { id: "malta",       name: "MALTA",             code: "mt", points: 0, lastScore: null as number | null },
-  { id: "ireland",     name: "IRELAND",           code: "ie", points: 0, lastScore: null as number | null },
-  { id: "portugal",    name: "PORTUGAL",          code: "pt", points: 0, lastScore: null as number | null },
-  { id: "greece",      name: "GREECE",            code: "gr", points: 0, lastScore: null as number | null },
-  { id: "cyprus",      name: "CYPRUS",            code: "cy", points: 0, lastScore: null as number | null },
-  { id: "israel",      name: "ISRAEL",            code: "il", points: 0, lastScore: null as number | null },
-  { id: "uk",          name: "UNITED KINGDOM",    code: "gb", points: 0, lastScore: null as number | null },
-  { id: "ukraine",     name: "UKRAINE",           code: "ua", points: 0, lastScore: null as number | null },
-  { id: "france",      name: "FRANCE",            code: "fr", points: 0, lastScore: null as number | null },
-  { id: "latvia",      name: "LATVIA",            code: "lv", points: 0, lastScore: null as number | null },
-  { id: "slovenia",    name: "SLOVENIA",          code: "si", points: 0, lastScore: null as number | null },
+  { id: "norway",      name: "NORWAY",           code: "no", points: 0, badges: [] as ScoreBadge[] },
+  { id: "belgium",     name: "BELGIUM",           code: "be", points: 0, badges: [] as ScoreBadge[] },
+  { id: "turkey",      name: "TURKEY",            code: "tr", points: 0, badges: [] as ScoreBadge[] },
+  { id: "germany",     name: "GERMANY",           code: "de", points: 0, badges: [] as ScoreBadge[] },
+  { id: "russia",      name: "RUSSIA",            code: "ru", points: 0, badges: [] as ScoreBadge[] },
+  { id: "croatia",     name: "CROATIA",           code: "hr", points: 0, badges: [] as ScoreBadge[] },
+  { id: "austria",     name: "AUSTRIA",           code: "at", points: 0, badges: [] as ScoreBadge[] },
+  { id: "poland",      name: "POLAND",            code: "pl", points: 0, badges: [] as ScoreBadge[] },
+  { id: "estonia",     name: "ESTONIA",           code: "ee", points: 0, badges: [] as ScoreBadge[] },
+  { id: "sweden",      name: "SWEDEN",            code: "se", points: 0, badges: [] as ScoreBadge[] },
+  { id: "iceland",     name: "ICELAND",           code: "is", points: 0, badges: [] as ScoreBadge[] },
+  { id: "bosnia",      name: "BOSNIA & HERZ.",    code: "ba", points: 0, badges: [] as ScoreBadge[] },
+  { id: "spain",       name: "SPAIN",             code: "es", points: 0, badges: [] as ScoreBadge[] },
+  { id: "romania",     name: "ROMANIA",           code: "ro", points: 0, badges: [] as ScoreBadge[] },
+  { id: "netherlands", name: "NETHERLANDS",       code: "nl", points: 0, badges: [] as ScoreBadge[] },
+  { id: "malta",       name: "MALTA",             code: "mt", points: 0, badges: [] as ScoreBadge[] },
+  { id: "ireland",     name: "IRELAND",           code: "ie", points: 0, badges: [] as ScoreBadge[] },
+  { id: "portugal",    name: "PORTUGAL",          code: "pt", points: 0, badges: [] as ScoreBadge[] },
+  { id: "greece",      name: "GREECE",            code: "gr", points: 0, badges: [] as ScoreBadge[] },
+  { id: "cyprus",      name: "CYPRUS",            code: "cy", points: 0, badges: [] as ScoreBadge[] },
+  { id: "israel",      name: "ISRAEL",            code: "il", points: 0, badges: [] as ScoreBadge[] },
+  { id: "uk",          name: "UNITED KINGDOM",    code: "gb", points: 0, badges: [] as ScoreBadge[] },
+  { id: "ukraine",     name: "UKRAINE",           code: "ua", points: 0, badges: [] as ScoreBadge[] },
+  { id: "france",      name: "FRANCE",            code: "fr", points: 0, badges: [] as ScoreBadge[] },
+  { id: "latvia",      name: "LATVIA",            code: "lv", points: 0, badges: [] as ScoreBadge[] },
+  { id: "slovenia",    name: "SLOVENIA",          code: "si", points: 0, badges: [] as ScoreBadge[] },
 ];
 
 const VOTING_COUNTRIES = [
@@ -53,7 +55,7 @@ type Country = {
   name: string;
   code: string;
   points: number;
-  lastScore: number | null;
+  badges: ScoreBadge[];
 };
 
 type FlyState = {
@@ -112,7 +114,11 @@ export default function Index() {
       const updatedList = countries
         .map((c) =>
           c.id === clickedId
-            ? { ...c, points: c.points + score, lastScore: score }
+            ? {
+                ...c,
+                points: c.points + score,
+                badges: [...c.badges, { score, voterCode: currentVoter.code }],
+              }
             : c
         )
         .sort((a, b) => b.points - a.points);
@@ -301,9 +307,13 @@ export default function Index() {
                 <div className="esc-pos">{idx + 1}</div>
                 <img src={FLAG_URL(country.code)} className="esc-flag-img" alt={country.name} />
                 <div className="esc-name">{country.name}</div>
-                {country.lastScore !== null && (
-                  <div className="esc-last-score">{country.lastScore}</div>
-                )}
+                <div className="esc-badges">
+                  {country.badges.map((b, i) => (
+                    <div key={i} className="esc-last-score" title={`+${b.score} from ${b.voterCode}`}>
+                      {b.score}
+                    </div>
+                  ))}
+                </div>
                 <div className="esc-pts">{country.points}</div>
               </div>
             );
@@ -331,9 +341,13 @@ export default function Index() {
               >
                 <img src={FLAG_URL(country.code)} className="esc-flag-img" alt={country.name} />
                 <div className="esc-name">{country.name}</div>
-                {country.lastScore !== null && (
-                  <div className="esc-last-score">{country.lastScore}</div>
-                )}
+                <div className="esc-badges">
+                  {country.badges.map((b, i) => (
+                    <div key={i} className="esc-last-score" title={`+${b.score} from ${b.voterCode}`}>
+                      {b.score}
+                    </div>
+                  ))}
+                </div>
                 <div className="esc-pts">{country.points}</div>
               </div>
             );
