@@ -4,7 +4,7 @@ const VOTE_ORDER = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
 
 // Флаги через реальные изображения Twemoji для точности
 const FLAG_URL = (code: string) =>
-  `https://flagcdn.com/28x21/${code}.png`;
+  `https://flagcdn.com/48x36/${code}.png`;
 
 type ScoreBadge = { score: number; voterCode: string };
 
@@ -213,8 +213,8 @@ export default function Index() {
   };
 
   const sorted = [...countries];
-  const leftCol = sorted.slice(0, 13);
-  const rightCol = sorted.slice(13);
+  const leftCol = sorted.slice(0, 12);
+  const rightCol = sorted.slice(12);
 
   // Flying row CSS
   const flyStyle: React.CSSProperties = (() => {
