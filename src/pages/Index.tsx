@@ -20,7 +20,7 @@ const INITIAL_COUNTRIES = [
   { id: "estonia",     name: "ESTONIA",           code: "ee", points: 0, badges: [] as ScoreBadge[] },
   { id: "sweden",      name: "SWEDEN",            code: "se", points: 0, badges: [] as ScoreBadge[] },
   { id: "iceland",     name: "ICELAND",           code: "is", points: 0, badges: [] as ScoreBadge[] },
-  { id: "bosnia",      name: "BOSNIA & HERZ.",    code: "ba", points: 0, badges: [] as ScoreBadge[] },
+  { id: "bosnia",      name: "BOSNIA & HERZEGOVINA", code: "ba", points: 0, badges: [] as ScoreBadge[] },
   { id: "spain",       name: "SPAIN",             code: "es", points: 0, badges: [] as ScoreBadge[] },
   { id: "romania",     name: "ROMANIA",           code: "ro", points: 0, badges: [] as ScoreBadge[] },
   { id: "netherlands", name: "NETHERLANDS",       code: "nl", points: 0, badges: [] as ScoreBadge[] },
@@ -287,7 +287,7 @@ export default function Index() {
       <div className="esc-board">
         {/* Left column */}
         <div className="esc-column">
-          {leftCol.map((country, idx) => {
+          {leftCol.map((country) => {
             const isGhost = flyState?.id === country.id;
             const isDisplaced = displacedIds.has(country.id) && isAnimating;
             const blocked = isBlocked(country.id);
@@ -304,7 +304,6 @@ export default function Index() {
                 ].join(" ")}
                 onClick={() => handleCountryClick(country.id)}
               >
-                <div className="esc-pos">{idx + 1}</div>
                 <img src={FLAG_URL(country.code)} className="esc-flag-img" alt={country.name} />
                 <div className="esc-name">{country.name}</div>
                 <div className="esc-badges">
@@ -322,7 +321,7 @@ export default function Index() {
 
         {/* Right column */}
         <div className="esc-column esc-column--right">
-          {rightCol.map((country, idx) => {
+          {rightCol.map((country) => {
             const isGhost = flyState?.id === country.id;
             const isDisplaced = displacedIds.has(country.id) && isAnimating;
             const blocked = isBlocked(country.id);
