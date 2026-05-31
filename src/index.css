@@ -99,3 +99,379 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ===== EUROVISION SCOREBOARD ===== */
+:root {
+  --esc-green-dark: #0d3d2b;
+  --esc-green-mid: #1a5c3e;
+  --esc-green-light: #237a52;
+  --esc-gold: #d4a820;
+  --esc-gold-light: #f0c842;
+  --esc-cream: #f5e8b0;
+  --esc-cream-dark: #e8d490;
+  --esc-row-bg: linear-gradient(90deg, #e8d88a 0%, #f5e9b5 40%, #e8d88a 100%);
+  --esc-row-highlight: linear-gradient(
+    90deg,
+    #f0c842 0%,
+    #fde96a 40%,
+    #f0c842 100%
+  );
+  --esc-text-dark: #1a1200;
+  --esc-gold-border: #b8921a;
+}
+
+.esc-root {
+  min-height: 100vh;
+  background: radial-gradient(
+    ellipse at center,
+    #1a5c3e 0%,
+    #0d3d2b 50%,
+    #071f16 100%
+  );
+  font-family: "Oswald", "Barlow Condensed", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 8px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.esc-bg-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 40% at 50% 0%,
+      rgba(212, 168, 32, 0.18) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 80% 60% at 50% 100%,
+      rgba(13, 61, 43, 0.8) 0%,
+      transparent 80%
+    );
+  pointer-events: none;
+}
+
+/* Header */
+.esc-header {
+  text-align: center;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.esc-stars {
+  color: var(--esc-gold-light);
+  font-size: 11px;
+  letter-spacing: 3px;
+  opacity: 0.8;
+}
+
+.esc-title {
+  font-family: "Oswald", sans-serif;
+  font-size: clamp(18px, 3.5vw, 30px);
+  font-weight: 700;
+  color: var(--esc-gold-light);
+  letter-spacing: 4px;
+  text-shadow:
+    0 0 20px rgba(212, 168, 32, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+  margin: 4px 0;
+  text-transform: uppercase;
+}
+
+/* Voter card */
+.esc-voter-wrap {
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.esc-voter-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, #1e6b45 0%, #0f4429 50%, #1e6b45 100%);
+  border: 2px solid var(--esc-gold);
+  border-radius: 40px;
+  padding: 10px 20px;
+  box-shadow:
+    0 0 24px rgba(212, 168, 32, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.esc-voter-flag-big {
+  font-size: 36px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  width: 44px;
+  text-align: center;
+}
+
+.esc-voter-details {
+  flex: 1;
+}
+
+.esc-voter-giving {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--esc-gold-light);
+  opacity: 0.8;
+}
+
+.esc-voter-country {
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.esc-next-score {
+  background: radial-gradient(circle, #e8321a 0%, #c01a0a 100%);
+  border: 3px solid var(--esc-gold);
+  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 16px rgba(220, 50, 26, 0.6),
+    0 4px 8px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+}
+
+.esc-next-label {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1;
+}
+
+.esc-next-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.esc-next-pts {
+  font-size: 7px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1;
+}
+
+/* Vote progress pips */
+.esc-pip-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.esc-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(212, 168, 32, 0.3);
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.esc-pip.done {
+  background: var(--esc-green-mid);
+  border-color: var(--esc-gold);
+  color: var(--esc-gold-light);
+}
+
+.esc-pip.active {
+  background: var(--esc-gold);
+  border-color: var(--esc-gold-light);
+  color: #000;
+  box-shadow: 0 0 10px rgba(212, 168, 32, 0.6);
+  transform: scale(1.15);
+}
+
+/* Scoreboard */
+.esc-board {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 900px;
+  position: relative;
+  z-index: 1;
+}
+
+.esc-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* Row */
+.esc-row {
+  display: flex;
+  align-items: center;
+  background: var(--esc-row-bg);
+  border: 1px solid var(--esc-gold-border);
+  border-radius: 20px;
+  padding: 4px 10px 4px 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  position: relative;
+  overflow: hidden;
+  min-height: 32px;
+}
+
+.esc-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    transparent 50%
+  );
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.esc-row:hover {
+  background: var(--esc-row-highlight);
+  transform: translateX(3px);
+  box-shadow:
+    0 3px 10px rgba(212, 168, 32, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.esc-row.flash {
+  background: linear-gradient(90deg, #ffd700 0%, #ffef60 40%, #ffd700 100%);
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  animation: esc-flash 0.6s ease;
+}
+
+@keyframes esc-flash {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.04);
+  }
+  60% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Position number */
+.esc-pos {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2e8b57 0%, #1a5c3e 100%);
+  border: 1.5px solid var(--esc-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+  flex-shrink: 0;
+  margin-right: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Flag */
+.esc-flag {
+  font-size: 18px;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Country name */
+.esc-name {
+  flex: 1;
+  font-size: clamp(10px, 1.4vw, 13px);
+  font-weight: 600;
+  color: var(--esc-text-dark);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 4px;
+}
+
+/* Points */
+.esc-pts {
+  font-size: clamp(12px, 1.6vw, 15px);
+  font-weight: 700;
+  color: var(--esc-text-dark);
+  min-width: 24px;
+  text-align: right;
+}
+
+/* Footer */
+.esc-footer {
+  margin-top: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.esc-reset {
+  background: transparent;
+  border: 1.5px solid rgba(212, 168, 32, 0.5);
+  border-radius: 20px;
+  color: rgba(212, 168, 32, 0.8);
+  font-family: "Oswald", sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  padding: 6px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.esc-reset:hover {
+  border-color: var(--esc-gold);
+  color: var(--esc-gold-light);
+  background: rgba(212, 168, 32, 0.1);
+  box-shadow: 0 0 10px rgba(212, 168, 32, 0.3);
+}
+
+/* Right column no position numbers */
+.esc-column--right .esc-row {
+  padding-left: 8px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .esc-board {
+    flex-direction: column;
+  }
+  .esc-voter-card {
+    padding: 8px 14px;
+  }
+}
