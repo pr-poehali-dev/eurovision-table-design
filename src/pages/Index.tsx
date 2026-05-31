@@ -2,61 +2,72 @@ import { useState, useRef, useCallback, useEffect } from "react";
 
 const VOTE_ORDER = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
 
+// Флаги через реальные изображения Twemoji для точности
+const FLAG_URL = (code: string) =>
+  `https://flagcdn.com/28x21/${code}.png`;
+
 const INITIAL_COUNTRIES = [
-  { id: "norway", name: "NORWAY", flag: "🇳🇴", points: 0 },
-  { id: "belgium", name: "BELGIUM", flag: "🇧🇪", points: 0 },
-  { id: "turkey", name: "TURKEY", flag: "🇹🇷", points: 0 },
-  { id: "germany", name: "GERMANY", flag: "🇩🇪", points: 0 },
-  { id: "russia", name: "RUSSIA", flag: "🇷🇺", points: 0 },
-  { id: "croatia", name: "CROATIA", flag: "🇭🇷", points: 0 },
-  { id: "austria", name: "AUSTRIA", flag: "🇦🇹", points: 0 },
-  { id: "poland", name: "POLAND", flag: "🇵🇱", points: 0 },
-  { id: "estonia", name: "ESTONIA", flag: "🇪🇪", points: 0 },
-  { id: "sweden", name: "SWEDEN", flag: "🇸🇪", points: 0 },
-  { id: "iceland", name: "ICELAND", flag: "🇮🇸", points: 0 },
-  { id: "bosnia", name: "BOSNIA & HERZ.", flag: "🇧🇦", points: 0 },
-  { id: "spain", name: "SPAIN", flag: "🇪🇸", points: 0 },
-  { id: "romania", name: "ROMANIA", flag: "🇷🇴", points: 0 },
-  { id: "netherlands", name: "NETHERLANDS", flag: "🇳🇱", points: 0 },
-  { id: "malta", name: "MALTA", flag: "🇲🇹", points: 0 },
-  { id: "ireland", name: "IRELAND", flag: "🇮🇪", points: 0 },
-  { id: "portugal", name: "PORTUGAL", flag: "🇵🇹", points: 0 },
-  { id: "greece", name: "GREECE", flag: "🇬🇷", points: 0 },
-  { id: "cyprus", name: "CYPRUS", flag: "🇨🇾", points: 0 },
-  { id: "israel", name: "ISRAEL", flag: "🇮🇱", points: 0 },
-  { id: "uk", name: "UNITED KINGDOM", flag: "🇬🇧", points: 0 },
-  { id: "ukraine", name: "UKRAINE", flag: "🇺🇦", points: 0 },
-  { id: "france", name: "FRANCE", flag: "🇫🇷", points: 0 },
-  { id: "latvia", name: "LATVIA", flag: "🇱🇻", points: 0 },
-  { id: "slovenia", name: "SLOVENIA", flag: "🇸🇮", points: 0 },
+  { id: "norway",      name: "NORWAY",           code: "no", points: 0, lastScore: null as number | null },
+  { id: "belgium",     name: "BELGIUM",           code: "be", points: 0, lastScore: null as number | null },
+  { id: "turkey",      name: "TURKEY",            code: "tr", points: 0, lastScore: null as number | null },
+  { id: "germany",     name: "GERMANY",           code: "de", points: 0, lastScore: null as number | null },
+  { id: "russia",      name: "RUSSIA",            code: "ru", points: 0, lastScore: null as number | null },
+  { id: "croatia",     name: "CROATIA",           code: "hr", points: 0, lastScore: null as number | null },
+  { id: "austria",     name: "AUSTRIA",           code: "at", points: 0, lastScore: null as number | null },
+  { id: "poland",      name: "POLAND",            code: "pl", points: 0, lastScore: null as number | null },
+  { id: "estonia",     name: "ESTONIA",           code: "ee", points: 0, lastScore: null as number | null },
+  { id: "sweden",      name: "SWEDEN",            code: "se", points: 0, lastScore: null as number | null },
+  { id: "iceland",     name: "ICELAND",           code: "is", points: 0, lastScore: null as number | null },
+  { id: "bosnia",      name: "BOSNIA & HERZ.",    code: "ba", points: 0, lastScore: null as number | null },
+  { id: "spain",       name: "SPAIN",             code: "es", points: 0, lastScore: null as number | null },
+  { id: "romania",     name: "ROMANIA",           code: "ro", points: 0, lastScore: null as number | null },
+  { id: "netherlands", name: "NETHERLANDS",       code: "nl", points: 0, lastScore: null as number | null },
+  { id: "malta",       name: "MALTA",             code: "mt", points: 0, lastScore: null as number | null },
+  { id: "ireland",     name: "IRELAND",           code: "ie", points: 0, lastScore: null as number | null },
+  { id: "portugal",    name: "PORTUGAL",          code: "pt", points: 0, lastScore: null as number | null },
+  { id: "greece",      name: "GREECE",            code: "gr", points: 0, lastScore: null as number | null },
+  { id: "cyprus",      name: "CYPRUS",            code: "cy", points: 0, lastScore: null as number | null },
+  { id: "israel",      name: "ISRAEL",            code: "il", points: 0, lastScore: null as number | null },
+  { id: "uk",          name: "UNITED KINGDOM",    code: "gb", points: 0, lastScore: null as number | null },
+  { id: "ukraine",     name: "UKRAINE",           code: "ua", points: 0, lastScore: null as number | null },
+  { id: "france",      name: "FRANCE",            code: "fr", points: 0, lastScore: null as number | null },
+  { id: "latvia",      name: "LATVIA",            code: "lv", points: 0, lastScore: null as number | null },
+  { id: "slovenia",    name: "SLOVENIA",          code: "si", points: 0, lastScore: null as number | null },
 ];
 
 const VOTING_COUNTRIES = [
-  { id: "turkey", name: "TURKEY", flag: "🇹🇷" },
-  { id: "sweden", name: "SWEDEN", flag: "🇸🇪" },
-  { id: "france", name: "FRANCE", flag: "🇫🇷" },
-  { id: "germany", name: "GERMANY", flag: "🇩🇪" },
-  { id: "uk", name: "UNITED KINGDOM", flag: "🇬🇧" },
-  { id: "spain", name: "SPAIN", flag: "🇪🇸" },
-  { id: "norway", name: "NORWAY", flag: "🇳🇴" },
-  { id: "russia", name: "RUSSIA", flag: "🇷🇺" },
-  { id: "croatia", name: "CROATIA", flag: "🇭🇷" },
-  { id: "austria", name: "AUSTRIA", flag: "🇦🇹" },
+  { id: "turkey",   name: "TURKEY",         code: "tr" },
+  { id: "sweden",   name: "SWEDEN",         code: "se" },
+  { id: "france",   name: "FRANCE",         code: "fr" },
+  { id: "germany",  name: "GERMANY",        code: "de" },
+  { id: "uk",       name: "UNITED KINGDOM", code: "gb" },
+  { id: "spain",    name: "SPAIN",          code: "es" },
+  { id: "norway",   name: "NORWAY",         code: "no" },
+  { id: "russia",   name: "RUSSIA",         code: "ru" },
+  { id: "croatia",  name: "CROATIA",        code: "hr" },
+  { id: "austria",  name: "AUSTRIA",        code: "at" },
 ];
 
-type Country = { id: string; name: string; flag: string; points: number };
+type Country = {
+  id: string;
+  name: string;
+  code: string;
+  points: number;
+  lastScore: number | null;
+};
 
 type FlyState = {
   id: string;
-  flag: string;
+  code: string;
   name: string;
-  currentPoints: number;
+  newPoints: number;
   addedScore: number;
   fromY: number;
   fromX: number;
   toY: number;
   toX: number;
   width: number;
+  height: number;
 } | null;
 
 export default function Index() {
@@ -65,10 +76,13 @@ export default function Index() {
   const [voteStep, setVoteStep] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [flyState, setFlyState] = useState<FlyState>(null);
-  const [flyPhase, setFlyPhase] = useState<"idle" | "flying" | "landing">("idle");
+  const [flyPhase, setFlyPhase] = useState<"idle" | "measuring" | "flying">("idle");
+  // Track which countries were already voted by current voter this round
+  const [votedThisRound, setVotedThisRound] = useState<Set<string>>(new Set());
+  // Track displaced rows during animation
+  const [displacedIds, setDisplacedIds] = useState<Set<string>>(new Set());
 
   const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const boardRef = useRef<HTMLDivElement | null>(null);
 
   const currentVoter = VOTING_COUNTRIES[voterIdx % VOTING_COUNTRIES.length];
   const currentScore = VOTE_ORDER[voteStep];
@@ -80,6 +94,10 @@ export default function Index() {
   const handleCountryClick = useCallback(
     (clickedId: string) => {
       if (isAnimating) return;
+      // No voting for self
+      if (clickedId === currentVoter.id) return;
+      // No double voting
+      if (votedThisRound.has(clickedId)) return;
 
       const clickedCountry = countries.find((c) => c.id === clickedId);
       if (!clickedCountry) return;
@@ -88,52 +106,68 @@ export default function Index() {
       if (!fromEl) return;
 
       const score = currentScore;
-
-      // Compute new sorted list to find destination position
-      const updatedList = countries
-        .map((c) => (c.id === clickedId ? { ...c, points: c.points + score } : c))
-        .sort((a, b) => b.points - a.points);
-
-      const newIdx = updatedList.findIndex((c) => c.id === clickedId);
-      const isLeftCol = newIdx < 13;
-
       const fromRect = fromEl.getBoundingClientRect();
 
-      setIsAnimating(true);
+      // Compute new list to know which rows get displaced
+      const updatedList = countries
+        .map((c) =>
+          c.id === clickedId
+            ? { ...c, points: c.points + score, lastScore: score }
+            : c
+        )
+        .sort((a, b) => b.points - a.points);
 
-      // Set fly state with FROM position, TO will be computed after state update
+      const oldIdx = countries.findIndex((c) => c.id === clickedId);
+      const newIdx = updatedList.findIndex((c) => c.id === clickedId);
+
+      // Rows that will be pushed down (between newIdx and oldIdx)
+      const displaced = new Set<string>();
+      if (newIdx < oldIdx) {
+        for (let i = newIdx; i < oldIdx; i++) {
+          displaced.add(countries[i].id);
+        }
+      }
+      setDisplacedIds(displaced);
+
+      setIsAnimating(true);
       setFlyState({
         id: clickedId,
-        flag: clickedCountry.flag,
+        code: clickedCountry.code,
         name: clickedCountry.name,
-        currentPoints: clickedCountry.points,
+        newPoints: clickedCountry.points + score,
         addedScore: score,
         fromY: fromRect.top,
         fromX: fromRect.left,
-        toY: fromRect.top, // placeholder, updated after render
+        toY: fromRect.top,
         toX: fromRect.left,
         width: fromRect.width,
+        height: fromRect.height,
       });
-      setFlyPhase("flying");
+      setFlyPhase("measuring");
 
-      // Update countries state
+      // Update state
       setCountries(updatedList);
 
+      // Update voted set
+      setVotedThisRound((prev) => new Set([...prev, clickedId]));
+
+      // Advance vote step
       if (voteStep < VOTE_ORDER.length - 1) {
         setVoteStep((s) => s + 1);
       } else {
+        // Next voter
         setVoteStep(0);
         setVoterIdx((v) => v + 1);
+        setVotedThisRound(new Set());
       }
     },
-    [countries, currentScore, voteStep, isAnimating]
+    [countries, currentScore, voteStep, isAnimating, currentVoter.id, votedThisRound]
   );
 
-  // After countries update, measure target position and trigger flight
+  // After rerender with new state — measure target and start flight
   useEffect(() => {
-    if (flyPhase !== "flying" || !flyState) return;
+    if (flyPhase !== "measuring" || !flyState) return;
 
-    // Small delay to let DOM rerender
     const timer = setTimeout(() => {
       const targetEl = rowRefs.current[flyState.id];
       if (!targetEl) {
@@ -144,25 +178,21 @@ export default function Index() {
 
       setFlyState((prev) =>
         prev
-          ? {
-              ...prev,
-              toY: toRect.top,
-              toX: toRect.left,
-              width: toRect.width,
-            }
+          ? { ...prev, toY: toRect.top, toX: toRect.left, width: toRect.width, height: toRect.height }
           : null
       );
-      setFlyPhase("landing");
-    }, 30);
+      setFlyPhase("flying");
+    }, 40);
 
     return () => clearTimeout(timer);
   }, [flyPhase, flyState?.id]);
 
-  // After landing phase animation ends
+  // After animation ends
   const finishAnimation = useCallback(() => {
     setFlyState(null);
     setFlyPhase("idle");
     setIsAnimating(false);
+    setDisplacedIds(new Set());
   }, []);
 
   const handleReset = () => {
@@ -172,38 +202,42 @@ export default function Index() {
     setFlyState(null);
     setFlyPhase("idle");
     setIsAnimating(false);
+    setVotedThisRound(new Set());
+    setDisplacedIds(new Set());
   };
 
   const sorted = [...countries];
   const leftCol = sorted.slice(0, 13);
   const rightCol = sorted.slice(13);
 
-  // Compute flying row style
+  // Flying row CSS
   const flyStyle: React.CSSProperties = (() => {
     if (!flyState) return { display: "none" };
-
-    const isLanding = flyPhase === "landing";
-    const y = isLanding ? flyState.toY : flyState.fromY;
-    const x = isLanding ? flyState.toX : flyState.fromX;
-
+    const isFlying = flyPhase === "flying";
+    const dy = flyState.toY - flyState.fromY;
+    const dx = flyState.toX - flyState.fromX;
     return {
       position: "fixed",
       top: flyState.fromY,
       left: flyState.fromX,
       width: flyState.width,
+      height: flyState.height,
       zIndex: 9999,
-      transform: isLanding
-        ? `translate(${flyState.toX - flyState.fromX}px, ${flyState.toY - flyState.fromY}px)`
-        : "translate(0, 0)",
-      transition: isLanding
-        ? "transform 650ms cubic-bezier(0.25, 0.46, 0.45, 0.94)"
+      transform: isFlying
+        ? `translate(${dx}px, ${dy}px) scale(1)`
+        : "translate(0,0) scale(1.04)",
+      transition: isFlying
+        ? "transform 1100ms cubic-bezier(0.22, 0.61, 0.36, 1)"
         : "none",
       pointerEvents: "none",
     };
   })();
 
+  const isBlocked = (id: string) =>
+    id === currentVoter.id || votedThisRound.has(id);
+
   return (
-    <div className="esc-root" ref={boardRef}>
+    <div className="esc-root">
       <div className="esc-bg-glow" />
 
       {/* Header */}
@@ -216,7 +250,11 @@ export default function Index() {
       {/* Current voter */}
       <div className="esc-voter-wrap">
         <div className="esc-voter-card">
-          <div className="esc-voter-flag-big">{currentVoter.flag}</div>
+          <img
+            src={FLAG_URL(currentVoter.code)}
+            className="esc-voter-flag-img"
+            alt={currentVoter.name}
+          />
           <div className="esc-voter-details">
             <div className="esc-voter-giving">VOTES FROM</div>
             <div className="esc-voter-country">{currentVoter.name}</div>
@@ -243,35 +281,63 @@ export default function Index() {
       <div className="esc-board">
         {/* Left column */}
         <div className="esc-column">
-          {leftCol.map((country, idx) => (
-            <div
-              key={country.id}
-              ref={setRef(country.id)}
-              className={`esc-row ${flyState?.id === country.id ? "esc-row--ghost" : ""} ${!isAnimating ? "clickable" : ""}`}
-              onClick={() => handleCountryClick(country.id)}
-            >
-              <div className="esc-pos">{idx + 1}</div>
-              <div className="esc-flag">{country.flag}</div>
-              <div className="esc-name">{country.name}</div>
-              <div className="esc-pts">{country.points}</div>
-            </div>
-          ))}
+          {leftCol.map((country, idx) => {
+            const isGhost = flyState?.id === country.id;
+            const isDisplaced = displacedIds.has(country.id) && isAnimating;
+            const blocked = isBlocked(country.id);
+            return (
+              <div
+                key={country.id}
+                ref={setRef(country.id)}
+                className={[
+                  "esc-row",
+                  isGhost ? "esc-row--ghost" : "",
+                  isDisplaced ? "esc-row--displaced" : "",
+                  blocked ? "esc-row--blocked" : "",
+                  !isAnimating && !blocked ? "clickable" : "",
+                ].join(" ")}
+                onClick={() => handleCountryClick(country.id)}
+              >
+                <div className="esc-pos">{idx + 1}</div>
+                <img src={FLAG_URL(country.code)} className="esc-flag-img" alt={country.name} />
+                <div className="esc-name">{country.name}</div>
+                {country.lastScore !== null && (
+                  <div className="esc-last-score">{country.lastScore}</div>
+                )}
+                <div className="esc-pts">{country.points}</div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Right column */}
         <div className="esc-column esc-column--right">
-          {rightCol.map((country, idx) => (
-            <div
-              key={country.id}
-              ref={setRef(country.id)}
-              className={`esc-row ${flyState?.id === country.id ? "esc-row--ghost" : ""} ${!isAnimating ? "clickable" : ""}`}
-              onClick={() => handleCountryClick(country.id)}
-            >
-              <div className="esc-flag">{country.flag}</div>
-              <div className="esc-name">{country.name}</div>
-              <div className="esc-pts">{country.points}</div>
-            </div>
-          ))}
+          {rightCol.map((country, idx) => {
+            const isGhost = flyState?.id === country.id;
+            const isDisplaced = displacedIds.has(country.id) && isAnimating;
+            const blocked = isBlocked(country.id);
+            return (
+              <div
+                key={country.id}
+                ref={setRef(country.id)}
+                className={[
+                  "esc-row",
+                  isGhost ? "esc-row--ghost" : "",
+                  isDisplaced ? "esc-row--displaced" : "",
+                  blocked ? "esc-row--blocked" : "",
+                  !isAnimating && !blocked ? "clickable" : "",
+                ].join(" ")}
+                onClick={() => handleCountryClick(country.id)}
+              >
+                <img src={FLAG_URL(country.code)} className="esc-flag-img" alt={country.name} />
+                <div className="esc-name">{country.name}</div>
+                {country.lastScore !== null && (
+                  <div className="esc-last-score">{country.lastScore}</div>
+                )}
+                <div className="esc-pts">{country.points}</div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -282,17 +348,17 @@ export default function Index() {
         </button>
       </div>
 
-      {/* Flying row — absolute clone that travels across the screen */}
+      {/* Flying row clone */}
       {flyState && (
         <div
           style={flyStyle}
           onTransitionEnd={finishAnimation}
           className="esc-row esc-row--flying"
         >
-          <div className="esc-flag">{flyState.flag}</div>
+          <img src={FLAG_URL(flyState.code)} className="esc-flag-img" alt={flyState.name} />
           <div className="esc-name">{flyState.name}</div>
-          <div className="esc-pts">{flyState.currentPoints + flyState.addedScore}</div>
-          <div className="esc-score-bubble">+{flyState.addedScore}</div>
+          <div className="esc-score-bubble">{flyState.addedScore}</div>
+          <div className="esc-pts">{flyState.newPoints}</div>
         </div>
       )}
     </div>

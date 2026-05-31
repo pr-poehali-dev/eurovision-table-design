@@ -372,11 +372,35 @@
 
 /* Ghost row — placeholder while original flies */
 .esc-row--ghost {
-  opacity: 0.25;
+  opacity: 0.15;
   pointer-events: none;
+  transform: scale(0.97);
 }
 
-/* Flying clone — travels across the screen */
+/* Displaced rows — shrink back as the flying row passes */
+.esc-row--displaced {
+  transform: scale(0.94) translateX(-4px);
+  opacity: 0.65;
+  filter: brightness(0.8);
+  transition:
+    transform 800ms ease,
+    opacity 800ms ease,
+    filter 800ms ease;
+}
+
+/* Blocked row (already voted or self) */
+.esc-row--blocked {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+.esc-row--blocked:hover {
+  background: var(--esc-row-bg) !important;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Flying clone — travels across the screen like a plane */
 .esc-row--flying {
   background: linear-gradient(
     90deg,
@@ -387,20 +411,18 @@
   ) !important;
   border: 2px solid var(--esc-gold-light) !important;
   box-shadow:
-    0 8px 32px rgba(212, 168, 32, 0.85),
-    0 2px 8px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+    0 18px 60px rgba(0, 0, 0, 0.7),
+    0 6px 24px rgba(212, 168, 32, 0.9),
+    0 0 40px rgba(255, 230, 50, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
   overflow: visible !important;
+  transform-origin: center center;
 }
 
-/* Score bubble on flying row */
+/* Score bubble — shown on flying row AND on landed row */
 .esc-score-bubble {
-  position: absolute;
-  right: -14px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: radial-gradient(circle, #2e8b57 0%, #0f4a29 100%);
   border: 2px solid var(--esc-gold);
@@ -411,10 +433,48 @@
   font-weight: 700;
   color: var(--esc-gold-light);
   box-shadow:
-    0 0 12px rgba(212, 168, 32, 0.6),
+    0 0 10px rgba(212, 168, 32, 0.7),
     0 2px 6px rgba(0, 0, 0, 0.5);
   flex-shrink: 0;
-  white-space: nowrap;
+  margin: 0 4px;
+}
+
+/* Last score bubble on regular row */
+.esc-last-score {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1a5c3e 0%, #0a2e1c 100%);
+  border: 1.5px solid var(--esc-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--esc-gold-light);
+  flex-shrink: 0;
+  margin: 0 3px;
+  box-shadow: 0 0 6px rgba(212, 168, 32, 0.5);
+}
+
+/* Flag image */
+.esc-flag-img {
+  width: 28px;
+  height: 21px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-right: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.esc-voter-flag-img {
+  width: 48px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
 }
 
 /* Position number */
